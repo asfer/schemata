@@ -3,6 +3,9 @@ name = "schemata"
 version = "0.1.0"
 edition = "2024"
 description = "Analyse JSONL documents to infer schemas, detect type collisions, and emit Avro/JSON schemas"
+homepage = "https://github.com/asfer/schemata"
+repository = "https://github.com/asfer/schemata"
+documentation = "https://docs.rs/schemata"
 license = "MIT"
 
 [dependencies]
