@@ -1,0 +1,33 @@
+[package]
+name = "schemata"
+version = "0.1.0"
+edition = "2024"
+description = "Analyse JSONL documents to infer schemas, detect type collisions, and emit Avro/JSON schemas"
+license = "MIT"
+
+[dependencies]
+# CLI argument parsing
+clap = { version = "4", features = ["derive"] }
+
+# JSON parsing
+serde_json = "1"
+serde = { version = "1", features = ["derive"] }
+
+# NaN-safe float ordering for min/max comparisons
+ordered-float = { version = "4", features = ["serde"] }
+
+# Error handling
+anyhow = "1"
+thiserror = "2"
+
+# HyperLogLog for approximate distinct counting
+hyperloglogplus = "0.1"
+
+# Hash for HyperLogLog
+ahash = "0.8"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
