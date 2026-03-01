@@ -72,7 +72,8 @@ impl PathEntry {
 
     /// Returns the types sorted by observation count descending, null first if present.
     pub fn types_by_frequency(&self) -> Vec<(&JsonType, u64)> {
-        let mut pairs: Vec<(&JsonType, u64)> = self.type_counts.iter().map(|(t, c)| (t, *c)).collect();
+        let mut pairs: Vec<(&JsonType, u64)> =
+            self.type_counts.iter().map(|(t, c)| (t, *c)).collect();
         pairs.sort_by(|a, b| {
             // null always first
             match (a.0 == &JsonType::Null, b.0 == &JsonType::Null) {
@@ -118,7 +119,10 @@ impl PathRegistry {
     }
 
     fn record(&mut self, obs: Observation) {
-        let entry = self.entries.entry(obs.path.clone()).or_insert_with(PathEntry::new);
+        let entry = self
+            .entries
+            .entry(obs.path.clone())
+            .or_insert_with(PathEntry::new);
 
         // Increment type count.
         *entry.type_counts.entry(obs.json_type.clone()).or_insert(0) += 1;

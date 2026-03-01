@@ -24,9 +24,9 @@ pub fn open_inputs(files: &[PathBuf]) -> Result<LineIter> {
                     .with_context(|| format!("failed to open file: {}", path.display()))?;
                 let reader = BufReader::new(file);
                 let path_str = path.display().to_string();
-                let iter = reader
-                    .lines()
-                    .map(move |r| r.with_context(|| format!("failed to read line from {path_str}")));
+                let iter = reader.lines().map(move |r| {
+                    r.with_context(|| format!("failed to read line from {path_str}"))
+                });
                 Ok(Box::new(iter))
             })
             .collect::<Result<_>>()?;

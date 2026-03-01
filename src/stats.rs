@@ -35,18 +35,23 @@ impl DistinctCounter {
                     // Transition to HyperLogLog++.
                     // Precision 14 gives ~0.8% error rate with ~16 KB memory.
                     let mut hll: HyperLogLogPlus<ScalarValue, RandomState> =
-                        HyperLogLogPlus::new(14, RandomState::new())
-                            .expect("valid HLL precision");
+                        HyperLogLogPlus::new(14, RandomState::new()).expect("valid HLL precision");
                     let cap_exceeded_at = set.len();
                     for v in set.drain() {
                         hll.add(&v);
                     }
                     hll.add(&value);
                     let cached_count = hll.count().round() as u64;
-                    *self = DistinctCounter::Approx { hll, cap_exceeded_at, cached_count };
+                    *self = DistinctCounter::Approx {
+                        hll,
+                        cap_exceeded_at,
+                        cached_count,
+                    };
                 }
             }
-            DistinctCounter::Approx { hll, cached_count, .. } => {
+            DistinctCounter::Approx {
+                hll, cached_count, ..
+            } => {
                 hll.add(&value);
                 *cached_count = hll.count().round() as u64;
             }

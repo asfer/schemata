@@ -29,7 +29,10 @@ pub fn build_report(registry: &PathRegistry) -> Value {
                 .filter(|(t, _)| **t != crate::traversal::JsonType::Null)
                 .map(|(t, c)| json!({"type": t.as_str(), "count": c}))
                 .collect();
-            path_obj.insert("collision_types".to_string(), Value::Array(collision_detail));
+            path_obj.insert(
+                "collision_types".to_string(),
+                Value::Array(collision_detail),
+            );
         }
 
         // --- unbounded_keys flag ---

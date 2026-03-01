@@ -293,10 +293,7 @@ pub fn annotate_collisions(schema: &mut Value, registry: &PathRegistry) {
 }
 
 fn annotate_record(schema: &mut Value, prefix: &str, registry: &PathRegistry) {
-    if let Some(fields) = schema
-        .get_mut("fields")
-        .and_then(|f| f.as_array_mut())
-    {
+    if let Some(fields) = schema.get_mut("fields").and_then(|f| f.as_array_mut()) {
         for field in fields.iter_mut() {
             let field_name = field
                 .get("name")

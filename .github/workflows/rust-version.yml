@@ -1,0 +1,60 @@
+name: Rust Version Bump
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  check-rust-version:
+    runs-on: ubuntu-latest
+    outputs:
+      needs_update: ${{ steps.check.outputs.needs_update }}
+      current_version: ${{ steps.check.outputs.current_version }}
+      latest_version: ${{ steps.check.outputs.latest_version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get current Rust version
+        id: check
+        run: |
+          if [ -f rust-toolchain.toml ]; then
+            CURRENT=$(grep 'channel' rust-toolchain.toml | sed 's/channel = "\(.*\)"/\1/')
+          else
+            CURRENT="stable"
+          fi
+          
+          LATEST=$(rustup run stable rustc --version | awk '{print $2}')
+          
+          echo "current_version=$CURRENT" >> $GITHUB_OUTPUT
+          echo "latest_version=$LATEST" >> $GITHUB_OUTPUT
+          
+          if [ "$CURRENT" != "$LATEST" ]; then
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+          else
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        if: steps.check.outputs.needs_update == 'true'
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+          cat > rust-toolchain.toml << EOF
+          [toolchain]
+          channel = "${{ steps.check.outputs.latest_version }}"
+          components = ["rustfmt", "clippy"]
+          EOF
+          
+          git add rust-toolchain.toml
+          git checkout -b "chore/update-rust-${{ steps.check.outputs.latest_version }}"
+          git commit -m "chore: update Rust toolchain to ${{ steps.check.outputs.latest_version }}"
+          git push origin "chore/update-rust-${{ steps.check.outputs.latest_version }}"
+          
+          gh pr create --title "chore: update Rust toolchain to ${{ steps.check.outputs.latest_version }}" \
+            --body "Automated Rust version update from ${{ steps.check.outputs.current_version }} to ${{ steps.check.outputs.latest_version }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
